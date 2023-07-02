@@ -32,6 +32,7 @@
   char freq[15] ;
   char dc[15] ;
   int duty = 0;
+  char A[15];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -70,15 +71,15 @@ void update_menu(int menu, char* dc, char* freq){
 	switch (menu) {
 	case 1:
 		lcd_clear();
-		lcd_puts(">F: ");
+		lcd_puts(">F  : ");
 		lcd_puts(freq);
 		lcd_gotoxy(0,1);
-		lcd_puts("%DC: ");
+		lcd_puts(" %DC: ");
 		lcd_puts(dc);
 		break;
 	case 2:
 		lcd_clear();
-		lcd_puts("F: ");
+		lcd_puts(" F  : ");
 		lcd_puts(freq);
 		lcd_gotoxy(0,1);
 		lcd_puts(">%DC: ");
@@ -124,7 +125,7 @@ int main(void)
   /* USER CODE BEGIN Init */
   int menu = 1;
   float i;
-  float j = 1;
+  int j = 1;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -162,15 +163,15 @@ int main(void)
 			  menu = 1;
 		  update_menu(menu, dc, freq);
 	  }
+
 	  if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12)){
 		  HAL_Delay(200);
 		  while (menu == 2){
 			  HAL_ADC_Init(&hadc1);
 			  HAL_ADC_Start(&hadc1);
-
 			  if (HAL_ADC_PollForConversion(&hadc1, 500)==HAL_OK){
 				  i = HAL_ADC_GetValue(&hadc1);
-				  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, HAL_ADC_GetValue(&hadc1)*200/4096*500/j);
+				  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, HAL_ADC_GetValue(&hadc1)*200/4096);
 			  }
 
 			  i = (i/4096)*100;
@@ -187,8 +188,10 @@ int main(void)
 	  	  	  		j = HAL_ADC_GetValue(&hadc1);
 	  	  	  	}
 
-	  	  	  	j = (j/4096)*500;
-	  	  	  	sprintf(freq, "%.1f", j);
+	  	  	  	j = (j*500)/4096;
+	  	  	  	int arr = (int) 100000 / j;
+	  	  	  	__HAL_TIM_SET_AUTORELOAD(&htim3, arr);
+	  	  	  	sprintf(freq, "%d", j);
 	  	  	  	HAL_Delay(500);
 	  	  	  	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11))
 	  	  	  		break;
