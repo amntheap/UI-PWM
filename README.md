@@ -14,6 +14,5 @@ pwm output is PC6.
 
 ## Pictures
 
-Simulink:
 ![CubeMX](https://s8.uupload.ir/files/screenshot_2023-07-02_042234_op5i.png)
 
